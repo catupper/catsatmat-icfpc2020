@@ -1,4 +1,3 @@
 #!/bin/sh
 
-cd build
-./main "$@" || echo "run error code: $?"
+/solution/target/release/app "$@" || echo "run error code: $?"
