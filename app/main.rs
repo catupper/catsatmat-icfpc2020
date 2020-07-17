@@ -3,6 +3,8 @@ use hyper::{Client, Request, Method, Body, StatusCode, Response};
 use std::env;
 use std::process;
 
+mod lib;
+
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error + Send + Sync>>;
 
 const API_KEY: &str = "41ff8e29e5fa4596928186fcfe5bfee2";
@@ -16,8 +18,7 @@ async fn sample(server_url: &str, player_key: &str) -> Result<()> {
     let req = Request::builder()
         .method(Method::POST)
         .uri(server_url)
-    .body(Body::from(player_key.to_string()))?;
-
+        .body(Body::from(player_key.to_string()))?;
 
     Ok(())
 }
@@ -50,12 +51,6 @@ async fn aliens(server_url: &str, request_string: String) -> Result<String> {
                     println!("Unexpected server response:");
                     println!("HTTP code: {}", res.status());
                     print!("Response body: ");
-                    while let Some(chunk) = res.body_mut().data().await {
-                        match chunk {
-                            Ok(content) => println!("{:?}", content),
-                            Err(why) => println!("error reading body: {:?}", why)
-                        }
-                    }
                     process::exit(2);
                 }
             }
@@ -75,6 +70,7 @@ async fn main() -> Result<()> {
     let player_key = &args[2];
 
     println!("ServerUrl: {}; PlayerKey: {}", server_url, player_key);
+
 
     let response = aliens(server_url, "01010101".to_string()).await?;
     print!("{}", response);    
