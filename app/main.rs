@@ -3,20 +3,15 @@ use hyper::{Client, Request, Method, Body, StatusCode};
 use std::env;
 use std::process;
 
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-    let args: Vec<String> = env::args().collect();
+type Result<T> = std::result::Result<T, Box<dyn std::error::Error + Send + Sync>>;
 
-    let server_url = &args[1];
-    let player_key = &args[2];
-
-    println!("ServerUrl: {}; PlayerKey: {}", server_url, player_key);
-
+async fn sample(server_url: &str, player_key: &str) -> Result<()> {
     let client = Client::new();
     let req = Request::builder()
         .method(Method::POST)
         .uri(server_url)
-        .body(Body::from(format!("{}", player_key)))?;
+    .body(Body::from(player_key.to_string()))?;
+
 
     match client.request(req).await {
         Ok(mut res) => {
@@ -49,6 +44,30 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
             process::exit(1);
         }
     }
+    Ok(())
+}
 
+async fn aliens(server_url: &str, player_key: &str) -> Result<()> {
+    let client = Client::new();
+    let req = Request::builder()
+        .method(Method::POST)
+        .uri(server_url.to_string() + "/aliens/send")
+    .body(Body::from(player_key.to_string()))?;
+    client.request(req).await?; 
+    Ok(())
+}
+
+#[tokio::main]
+async fn main() -> Result<()> {
+    let args: Vec<String> = env::args().collect();
+
+    let server_url = &args[1];
+    let player_key = &args[2];
+
+    println!("ServerUrl: {}; PlayerKey: {}", server_url, player_key);
+
+    aliens(server_url, player_key).await?;
+    sample(server_url, player_key).await?;
+    
     Ok(())
 }
