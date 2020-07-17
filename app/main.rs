@@ -1,5 +1,5 @@
 use http_body::Body as _;
-use hyper::{Body, Client, Method, Request, Response, StatusCode};
+use hyper::{Body, Client, Method, Request, StatusCode};
 use std::env;
 use std::process;
 
@@ -7,7 +7,7 @@ type Result<T> = std::result::Result<T, Box<dyn std::error::Error + Send + Sync>
 
 const API_KEY: &str = "41ff8e29e5fa4596928186fcfe5bfee2";
 
-async fn sample(server_url: &str, player_key: &str) -> Result<()> {
+/*async fn sample(server_url: &str, player_key: &str) -> Result<()> {
     let client = Client::new();
     let req = Request::builder()
         .method(Method::POST)
@@ -15,7 +15,7 @@ async fn sample(server_url: &str, player_key: &str) -> Result<()> {
         .body(Body::from(player_key.to_string()))?;
 
     Ok(())
-}
+}*/
 
 async fn aliens(server_url: &str, request_string: String) -> Result<String> {
     let client = Client::new();

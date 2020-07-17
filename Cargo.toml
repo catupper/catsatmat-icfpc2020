@@ -8,6 +8,11 @@ edition = "2018"
 name = "app"
 path = "app/main.rs"
 
+[[bin]]
+name = "galaxy"
+path = "app/galaxy.rs"
+
+
 [dependencies]
 tokio = { version = "0.2.21", features = ["macros"] }
 hyper = "0.13.5"
