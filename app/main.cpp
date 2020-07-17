@@ -2,6 +2,7 @@
 #include <regex>
 #include <string>
 #include "httplib.h"
+#include "translate.hpp"
 
 int main(int argc, char* argv[])
 {
