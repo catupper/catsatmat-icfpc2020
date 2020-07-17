@@ -9,10 +9,6 @@ type Result<T> = std::result::Result<T, Box<dyn std::error::Error + Send + Sync>
 
 const API_KEY: &str = "41ff8e29e5fa4596928186fcfe5bfee2";
 
-async fn print_response(response: Result<Response<Body>>)->Result<()>{
-    Ok(())
-}
-
 async fn sample(server_url: &str, player_key: &str) -> Result<()> {
     let client = Client::new();
     let req = Request::builder()
@@ -62,17 +58,20 @@ async fn aliens(server_url: &str, request_string: String) -> Result<String> {
     }
 }
 
+const DEFAULT_URL: &str = "https://icfpc2020-api.testkontur.ru";
+const DEFAULT_PLAYER_KEY: &str = "11111";
+
 #[tokio::main]
 async fn main() -> Result<()> {
     let args: Vec<String> = env::args().collect();
 
-    let server_url = &args[1];
-    let player_key = &args[2];
+    let server_url = args.get(1).cloned().unwrap_or_else(|| DEFAULT_URL.to_string());
+    let player_key = args.get(2).cloned().unwrap_or_else(|| DEFAULT_PLAYER_KEY.to_string());
 
     println!("ServerUrl: {}; PlayerKey: {}", server_url, player_key);
 
 
-    let response = aliens(server_url, "01010101".to_string()).await?;
+    let response = aliens(&server_url, "01010101".to_string()).await?;
     print!("{}", response);    
     Ok(())
 }
