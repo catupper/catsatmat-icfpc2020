@@ -35,21 +35,16 @@ pub fn parse(text: &str) -> HashMap<i32, Expr> {
     let mut stack = Vec::new();
     let words = words.rev();
     for word in words {
-      match word.parse::<i32>() {
-        Ok(n) => {
-          stack.push(Int(n));
-        }
-        Err(_) => {
-          if let Some(n) = parse_def(word) {
-            stack.push(Def(n));
-          } else if word == "ap" {
-            let e1 = stack.pop().unwrap();
-            let e2 = stack.pop().unwrap();
-            stack.push(Ap(Box::new(e1), Box::new(e2)));
-          } else {
-            stack.push(Cst(word.to_owned()));
-          }
-        }
+      if let Ok(n) = word.parse::<i32>() {
+        stack.push(Int(n));
+      } else if let Some(n) = parse_def(word) {
+        stack.push(Def(n));
+      } else if word == "ap" {
+        let e1 = stack.pop().unwrap();
+        let e2 = stack.pop().unwrap();
+        stack.push(Ap(Box::new(e1), Box::new(e2)));
+      } else {
+        stack.push(Cst(word.to_owned()));
       }
     }
     let e = stack.pop().unwrap();
@@ -59,8 +54,10 @@ pub fn parse(text: &str) -> HashMap<i32, Expr> {
   map
 }
 
+mod data;
+use crate::data::galaxy;
+
 #[test]
 fn test_galaxy() {
-  use crate::data::galaxy;
   println!("galaxy {:?}", parse(galaxy));
 }
