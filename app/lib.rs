@@ -30,7 +30,7 @@ pub fn parse(text: &str) -> HashMap<i32, Expr> {
         Ok(n) => {
           stack.push(Int(n));
         }
-        Ng => match word.strip_prefix(":") {
+        Err(_) => match word.strip_prefix(":") {
           Some(sn) => {
             stack.push(Def(sn.parse::<i32>().unwrap()));
           }
