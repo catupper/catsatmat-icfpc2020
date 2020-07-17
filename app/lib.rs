@@ -10,6 +10,15 @@ pub enum Expr {
 }
 use Expr::*;
 
+/// :12345 の形のものをパース
+fn parse_def(word: &str) -> Option<i32> {
+  if &word[0..0] == ":" {
+    Some(word[1..].parse::<i32>().unwrap())
+  } else {
+    None
+  }
+}
+
 /// パースする
 /// galaxy は -1 扱い
 pub fn parse(text: &str) -> HashMap<i32, Expr> {
@@ -20,7 +29,7 @@ pub fn parse(text: &str) -> HashMap<i32, Expr> {
     let def_n = if head == "galaxy" {
       -1
     } else {
-      head.strip_prefix(":").unwrap().parse::<i32>().unwrap()
+      parse_def(head).unwrap()
     };
     assert_eq!(words.next().unwrap(), "=");
     let mut stack = Vec::new();
@@ -30,20 +39,17 @@ pub fn parse(text: &str) -> HashMap<i32, Expr> {
         Ok(n) => {
           stack.push(Int(n));
         }
-        Err(_) => match word.strip_prefix(":") {
-          Some(sn) => {
-            stack.push(Def(sn.parse::<i32>().unwrap()));
+        Err(_) => {
+          if let Some(n) = parse_def(word) {
+            stack.push(Def(n));
+          } else if word == "ap" {
+            let e1 = stack.pop().unwrap();
+            let e2 = stack.pop().unwrap();
+            stack.push(Ap(Box::new(e1), Box::new(e2)));
+          } else {
+            stack.push(Cst(word.to_owned()));
           }
-          None => {
-            if word == "ap" {
-              let e1 = stack.pop().unwrap();
-              let e2 = stack.pop().unwrap();
-              stack.push(Ap(Box::new(e1), Box::new(e2)));
-            } else {
-              stack.push(Cst(word.to_owned()));
-            }
-          }
-        },
+        }
       }
     }
     let e = stack.pop().unwrap();
