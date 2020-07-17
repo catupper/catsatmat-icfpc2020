@@ -3,6 +3,7 @@ use hyper::{Body, Client, Method, Request, StatusCode};
 use std::env;
 use std::process;
 
+mod data;
 mod lib;
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error + Send + Sync>>;

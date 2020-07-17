@@ -12,7 +12,7 @@ use Expr::*;
 
 /// :12345 の形のものをパース
 fn parse_def(word: &str) -> Option<i32> {
-  if &word[0..0] == ":" {
+  if &word[0..1] == ":" {
     Some(word[1..].parse::<i32>().unwrap())
   } else {
     None
@@ -57,4 +57,10 @@ pub fn parse(text: &str) -> HashMap<i32, Expr> {
     map.insert(def_n, e);
   }
   map
+}
+
+#[test]
+fn test_galaxy() {
+  use crate::data::galaxy;
+  println!("galaxy {:?}", parse(galaxy));
 }
