@@ -120,4 +120,12 @@ impl Interpreter {
         }
         expr
     }
+
+    pub fn apply_cons(&self, expr: Expr) -> Expr {
+        let expr = self.apply(expr);
+        match expr {
+            Cons2(x, y) => Cons2(Box::new(self.apply_cons(*x)), Box::new(self.apply_cons(*y))),
+            x => x,
+        }
+    }
 }
