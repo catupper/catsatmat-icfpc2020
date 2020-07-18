@@ -19,3 +19,7 @@ pub fn cdr<T, U>(cons: ConsNil<T, U>) -> Option<U> {
         ConsNil::Cons(_, x) => Some(x),
     }
 }
+
+pub fn cons<T, U>(x: T, y: U) -> ConsNil<T, U> {
+    ConsNil::Cons(x, y)
+}

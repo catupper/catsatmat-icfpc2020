@@ -46,7 +46,8 @@ fn main() {
     let galaxy_exp = exps.get(&-1).unwrap().clone();
     let galaxy = interpreter.apply(galaxy_exp);
     let new_expr = Expr::ap(Expr::ap(galaxy, Nil), Expr::vector(0, 0));
-    let hoge = interpreter.apply(new_expr);
+    let hoge = interpreter.apply_cons(new_expr);
+
     println!("{:?}", hoge);
     /*
     for (id, exp) in exps {
