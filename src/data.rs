@@ -1,4 +1,4 @@
-pub const galaxy: &str = r#":1029 = ap ap cons 7 ap ap cons 123229502148636 nil
+pub const GALAXY: &str = r#":1029 = ap ap cons 7 ap ap cons 123229502148636 nil
 :1030 = ap ap cons 2 ap ap cons 7 nil
 :1031 = ap ap cons 4 ap ap cons 21855 nil
 :1032 = ap ap cons 7 ap ap cons 560803991675135 nil

@@ -1,10 +1,7 @@
 use http_body::Body as _;
-use hyper::{Client, Request, Method, Body, StatusCode, Response};
+use hyper::{Body, Client, Method, Request, StatusCode};
 use std::env;
 use std::process;
-
-mod data;
-mod lib;
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error + Send + Sync>>;
 
@@ -17,6 +14,38 @@ async fn sample(server_url: &str, player_key: &str) -> Result<()> {
         .uri(server_url)
         .body(Body::from(player_key.to_string()))?;
 
+    match client.request(req).await {
+        Ok(mut res) => {
+            match res.status() {
+                StatusCode::OK => {
+                    print!("Server response: ");
+                    while let Some(chunk) = res.body_mut().data().await {
+                        match chunk {
+                            Ok(content) => println!("{:?}", content),
+                            Err(why) => println!("error reading body: {:?}", why)
+                        }
+                    }
+                },
+                _ => {
+                    println!("Unexpected server response:");
+                    println!("HTTP code: {}", res.status());
+                    print!("Response body: ");
+                    while let Some(chunk) = res.body_mut().data().await {
+                        match chunk {
+                            Ok(content) => println!("{:?}", content),
+                            Err(why) => println!("error reading body: {:?}", why)
+                        }
+                    }
+                    process::exit(2);
+                }
+            }
+        },
+        Err(err) => {
+            println!("Unexpected server response:\n{}", err);
+            process::exit(1);
+        }
+    }
+
     Ok(())
 }
 
@@ -27,29 +56,27 @@ async fn aliens(server_url: &str, request_string: String) -> Result<String> {
         .uri(server_url.to_string() + "/aliens/send?apiKey=" + API_KEY)
         .body(Body::from(request_string))?;
 
-    match client.request(req).await{
-        Ok(mut res) => {
-            match res.status() {
-                StatusCode::OK => {
-                    print!("Server response: ");
-                    let mut response = "".to_string();
-                    while let Some(chunk) = res.body_mut().data().await {
-                        match chunk {
-                            Ok(content) => {
-                                response = response + &String::from_utf8(content.to_vec()).unwrap();                                    
-                                println!("{:?}", content)
-                            },
-                            Err(why) => println!("error reading body: {:?}", why)
+    match client.request(req).await {
+        Ok(mut res) => match res.status() {
+            StatusCode::OK => {
+                print!("Server response: ");
+                let mut response = "".to_string();
+                while let Some(chunk) = res.body_mut().data().await {
+                    match chunk {
+                        Ok(content) => {
+                            response = response + &String::from_utf8(content.to_vec()).unwrap();
+                            println!("{:?}", content)
                         }
+                        Err(why) => println!("error reading body: {:?}", why),
                     }
-                    Ok(response)
-                },
-                _ => {
-                    println!("Unexpected server response:");
-                    println!("HTTP code: {}", res.status());
-                    print!("Response body: ");
-                    process::exit(2);
                 }
+                Ok(response)
+            }
+            _ => {
+                println!("Unexpected server response:");
+                println!("HTTP code: {}", res.status());
+                print!("Response body: ");
+                process::exit(2);
             }
         },
         Err(err) => {
@@ -66,13 +93,17 @@ const DEFAULT_PLAYER_KEY: &str = "11111";
 async fn main() -> Result<()> {
     let args: Vec<String> = env::args().collect();
 
-    let server_url = args.get(1).cloned().unwrap_or_else(|| DEFAULT_URL.to_string());
-    let player_key = args.get(2).cloned().unwrap_or_else(|| DEFAULT_PLAYER_KEY.to_string());
+    let server_url = args
+        .get(1)
+        .cloned()
+        .unwrap_or_else(|| DEFAULT_URL.to_string());
+    let player_key = args
+        .get(2)
+        .cloned()
+        .unwrap_or_else(|| DEFAULT_PLAYER_KEY.to_string());
+    sample(&server_url, &player_key).await?;
 
-    println!("ServerUrl: {}; PlayerKey: {}", server_url, player_key);
-
-
-    let response = aliens(&server_url, "01010101".to_string()).await?;
-    print!("{}", response);    
+    let response = aliens(&server_url, "1111011000010110001000".to_string()).await?;//((1,2))
+    print!("{}", response);
     Ok(())
 }
