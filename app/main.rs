@@ -1,6 +1,5 @@
 use http_body::Body as _;
 use hyper::{Body, Client, Method, Request, StatusCode};
-use hyper_tls::HttpsConnector;
 use std::env;
 use std::process;
 

@@ -64,8 +64,32 @@ use std::fmt;
 impl fmt::Display for Expr {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Expr::Cons2(expr1, expr2) => write!(f, "<{}|{}>", expr1, expr2),
-            Expr::Nil => write!(f, "."),
+            Expr::Cons2(_, _) | Expr::Nil => {
+                write!(f, "[")?;
+                let mut expr: &Expr = self;
+                let mut first = true;
+                loop {
+                    match expr {
+                        Expr::Cons2(expr1, expr2) => {
+                            if !first {
+                                write!(f, ",")?;
+                            }
+                            write!(f, " {}", expr1)?;
+                            expr = expr2;
+                            first = false;
+                        }
+                        Expr::Nil => {
+                            write!(f, " ]")?;
+                            break;
+                        }
+                        _ => {
+                            write!(f, " | {} ]", expr)?;
+                            break;
+                        }
+                    }
+                }
+                fmt::Result::Ok(())
+            }
             Expr::Int(n) => write!(f, "{}", n),
             _ => write!(f, "{:?}", self),
         }
