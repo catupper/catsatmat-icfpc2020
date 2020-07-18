@@ -48,7 +48,7 @@ fn main() {
     let new_expr = Expr::ap(Expr::ap(galaxy, Nil), Expr::vector(0, 0));
     let hoge = interpreter.apply_cons(new_expr);
 
-    println!("{:?}", hoge);
+    println!("{}", hoge);
     /*
     for (id, exp) in exps {
         if id != 1342 {
