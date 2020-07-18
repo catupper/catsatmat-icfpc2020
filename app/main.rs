@@ -79,6 +79,12 @@ async fn aliens(client: &Client<HttpConnector>, server_url: &str, request_string
                 println!("Unexpected server response:");
                 println!("HTTP code: {}", res.status());
                 print!("Response body: ");
+                while let Some(chunk) = res.body_mut().data().await {
+                    match chunk {
+                        Ok(content) => println!("{:?}", content),
+                        Err(why) => println!("error reading body: {:?}", why)
+                    }
+                }                
                 process::exit(2);
             }
         },
