@@ -182,6 +182,9 @@ mod tests {
     }
     #[test]
     fn demodulate() {
-        println!("{:?}", Expr::demodulate("11111101100001011000100000"));
+        println!(
+            "{:?}",
+            Expr::demodulate("110110000111011111100001000010100011010000")
+        );
     }
 }
