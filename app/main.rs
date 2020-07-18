@@ -103,7 +103,7 @@ async fn main() -> Result<()> {
         .unwrap_or_else(|| DEFAULT_PLAYER_KEY.to_string());
     sample(&server_url, &player_key).await?;
 
-    let response = aliens(&server_url, "01010101".to_string()).await?;
+    let response = aliens(&server_url, "1111011000010110001000".to_string()).await?;//((1,2))
     print!("{}", response);
     Ok(())
 }
