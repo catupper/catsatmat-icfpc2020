@@ -35,7 +35,26 @@ pub fn parse(text: &str) -> HashMap<i32, Expr> {
                 let e2 = stack.pop().unwrap();
                 stack.push(Ap(Box::new(e1), Box::new(e2)));
             } else {
-                stack.push(Cst(word.to_owned()));
+                let cst = match word {
+                    "add" => Add0,
+                    "b" => B0,
+                    "c" => C0,
+                    "car" => Car,
+                    "cdr" => Cdr,
+                    "cons" => Cons0,
+                    "div" => Div0,
+                    "eq" => Eq0,
+                    "i" => I,
+                    "isnil" => IsNil,
+                    "lt" => Lt0,
+                    "mul" => Mul0,
+                    "neg" => Neg,
+                    "nil" => Nil,
+                    "s" => S0,
+                    "t" => T0,
+                    _ => panic!("Parse Failed"),
+                };
+                stack.push(cst);
             }
         }
         let e = stack.pop().unwrap();

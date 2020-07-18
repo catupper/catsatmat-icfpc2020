@@ -7,15 +7,47 @@ type Result<T> = std::result::Result<T, Box<dyn std::error::Error + Send + Sync>
 
 const API_KEY: &str = "41ff8e29e5fa4596928186fcfe5bfee2";
 
-/*async fn sample(server_url: &str, player_key: &str) -> Result<()> {
+async fn sample(server_url: &str, player_key: &str) -> Result<()> {
     let client = Client::new();
     let req = Request::builder()
         .method(Method::POST)
         .uri(server_url)
         .body(Body::from(player_key.to_string()))?;
 
+    match client.request(req).await {
+        Ok(mut res) => {
+            match res.status() {
+                StatusCode::OK => {
+                    print!("Server response: ");
+                    while let Some(chunk) = res.body_mut().data().await {
+                        match chunk {
+                            Ok(content) => println!("{:?}", content),
+                            Err(why) => println!("error reading body: {:?}", why)
+                        }
+                    }
+                },
+                _ => {
+                    println!("Unexpected server response:");
+                    println!("HTTP code: {}", res.status());
+                    print!("Response body: ");
+                    while let Some(chunk) = res.body_mut().data().await {
+                        match chunk {
+                            Ok(content) => println!("{:?}", content),
+                            Err(why) => println!("error reading body: {:?}", why)
+                        }
+                    }
+                    process::exit(2);
+                }
+            }
+        },
+        Err(err) => {
+            println!("Unexpected server response:\n{}", err);
+            process::exit(1);
+        }
+    }
+
     Ok(())
-}*/
+}
 
 async fn aliens(server_url: &str, request_string: String) -> Result<String> {
     let client = Client::new();
@@ -69,8 +101,7 @@ async fn main() -> Result<()> {
         .get(2)
         .cloned()
         .unwrap_or_else(|| DEFAULT_PLAYER_KEY.to_string());
-
-    println!("ServerUrl: {}; PlayerKey: {}", server_url, player_key);
+    sample(&server_url, &player_key).await?;
 
     let response = aliens(&server_url, "01010101".to_string()).await?;
     print!("{}", response);

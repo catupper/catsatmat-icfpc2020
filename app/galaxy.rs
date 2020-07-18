@@ -1,9 +1,13 @@
 use app::data::GALAXY;
-use app::{parse, Interpreter};
+use app::{
+    parse,
+    Expr::{self, *},
+    Interpreter,
+};
 
 use std::collections::{HashMap, HashSet};
-use std::iter::FromIterator;
 
+#[allow(unused)]
 fn calc_reachability(edge: &HashMap<i32, HashSet<i32>>) -> HashMap<(i32, i32), bool> {
     let mut reachability = HashMap::new();
     for from in edge.keys() {
@@ -38,52 +42,22 @@ fn calc_reachability(edge: &HashMap<i32, HashSet<i32>>) -> HashMap<(i32, i32), b
 
 fn main() {
     let exps = parse(GALAXY);
-    let mut refer_to: HashMap<i32, HashSet<i32>> = HashMap::from_iter(
-        exps.clone()
-            .into_iter()
-            .map(|(id, exp)| (id, exp.travarse_defs())),
-    );
-    for (id, vec) in refer_to.iter_mut() {
-        if vec.remove(&id) {
-            println!("{}", id);
+    let interpreter = Interpreter::new(exps.clone());
+    let galaxy_exp = exps.get(&-1).unwrap().clone();
+    let galaxy = interpreter.apply(galaxy_exp);
+    let new_expr = Expr::ap(Expr::ap(galaxy, Nil), Expr::vector(0, 0));
+    let hoge = interpreter.apply(new_expr);
+    println!("{:?}", hoge);
+    /*
+    for (id, exp) in exps {
+        if id != 1342 {
+            continue;
         }
-    }
-    //    println!("{:?}", refer_to);
-    let reachability = calc_reachability(&refer_to);
-    let in_loop: Vec<i32> = refer_to
-        .keys()
-        .cloned()
-        .filter(|id| *reachability.get(&(*id, *id)).unwrap())
-        .collect();
-    println!("{:?}", in_loop);
-    for id in &in_loop {
-        //        println!("{}: {:?}\n", id, exps.get(&id).unwrap())
-        println!(
-            "{}: {:?}\n",
-            id,
-            refer_to
-                .get(id)
-                .unwrap()
-                .iter()
-                .filter(|x| in_loop.contains(x))
-                .collect::<Vec<_>>()
-        )
-    }
-    let to_loop: Vec<i32> = refer_to
-        .keys()
-        .cloned()
-        .filter(|id| {
-            in_loop
-                .iter()
-                .any(|lp| *reachability.get(&(*id, *lp)).unwrap())
-        })
-        .collect();
-    println!("{:?}", to_loop);
-    //    let galaxy = exps.get(&-1).unwrap().clone();
-    let galaxy = exps.get(&1208).unwrap().clone();
-    println!("{:?}", galaxy);
-    let interpreter = Interpreter::new(exps);
-    println!("{:?}", interpreter.apply(galaxy));
+        println!(":{} =", id);
+        println!("{:?}", interpreter.apply(exp));
+        println!();
+        println!();
+    }*/
 }
 /*
 fn hoge() {
