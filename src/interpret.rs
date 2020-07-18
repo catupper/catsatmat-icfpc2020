@@ -51,6 +51,7 @@ impl Interpreter {
                         }
                         Cons0 => Cons1(arg),
                         Cons1(x) => Cons2(x, arg),
+                        Cons2(x, y) => Ap(Box::new(Ap(arg, x)), y),
                         Div0 => Div1(arg),
                         Div1(x) => {
                             if let (Int(x), Int(y)) = (self.apply(*x), self.apply(*arg)) {

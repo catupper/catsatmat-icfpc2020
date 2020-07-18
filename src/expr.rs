@@ -170,7 +170,6 @@ mod tests {
     }
     #[test]
     fn demodulate() {
-        use crate::expr::Expr::*;
         println!("{:?}", Expr::demodulate("11111101100001011000100000"));
     }
 }
