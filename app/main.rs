@@ -51,10 +51,13 @@ async fn sample(server_url: &str, player_key: &str) -> Result<()> {
 
 async fn aliens(server_url: &str, request_string: String) -> Result<String> {
     let client = Client::new();
+    let server_url = server_url.to_string() + "/aliens/send?apiKey=" + API_KEY;
     let req = Request::builder()
         .method(Method::POST)
-        .uri(server_url.to_string() + "/aliens/send?apiKey=" + API_KEY)
-        .body(Body::from(request_string))?;
+        .uri(server_url.clone())
+        .body(Body::from(request_string.clone()))?;
+    
+    println!("ServerUrl: {}; requestString: {}", server_url, request_string);
 
     match client.request(req).await {
         Ok(mut res) => match res.status() {
@@ -102,7 +105,6 @@ async fn main() -> Result<()> {
         .cloned()
         .unwrap_or_else(|| DEFAULT_PLAYER_KEY.to_string());
     sample(&server_url, &player_key).await?;
-
     let response = aliens(&server_url, "1111011000010110001000".to_string()).await?;//((1,2))
     print!("{}", response);
     Ok(())
