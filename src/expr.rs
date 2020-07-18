@@ -60,6 +60,18 @@ pub enum Expr {
     T1(Box<Expr>),
 }
 
+use std::fmt;
+impl fmt::Display for Expr {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Expr::Cons2(expr1, expr2) => write!(f, "<{}|{}>", expr1, expr2),
+            Expr::Nil => write!(f, "."),
+            Expr::Int(n) => write!(f, "{}", n),
+            _ => write!(f, "{:?}", self),
+        }
+    }
+}
+
 impl Expr {
     pub fn travarse_defs(&self) -> HashSet<i32> {
         match self {
