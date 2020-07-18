@@ -82,7 +82,7 @@ impl fmt::Display for Expr {
                             write!(f, " ]")?;
                             break;
                         }
-                        __ => {
+                        _ => {
                             write!(f, " | {} ]", expr)?;
                             break;
                         }
