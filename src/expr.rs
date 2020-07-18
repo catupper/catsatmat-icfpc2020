@@ -98,6 +98,38 @@ impl Expr {
         }
     }
 
+    pub fn demodulate_abs(src: &str) -> (i64, &str) {
+        let n = src.chars().position(|c| c == '0').unwrap();
+        let mut res = 0i64;
+        for c in src[n + 1..n + 1 + 4 * n].chars() {
+            res *= 2;
+            if c == '1' {
+                res += 1;
+            }
+        }
+        (res, &src[n + 1 + 4 * n..])
+    }
+
+    pub fn demodulate(src: &str) -> (Self, &str) {
+        match &src[0..2] {
+            "00" => (Expr::Nil, &src[2..]),
+            "01" => {
+                let (abs, rest) = Expr::demodulate_abs(&src[2..]);
+                (Expr::Int(abs), rest)
+            }
+            "10" => {
+                let (abs, rest) = Expr::demodulate_abs(&src[2..]);
+                (Expr::Int(-abs), rest)
+            }
+            "11" => {
+                let (x, rest) = Expr::demodulate(&src[2..]);
+                let (y, rest) = Expr::demodulate(rest);
+                (Expr::cons(x, y), rest)
+            }
+            _ => panic!(),
+        }
+    }
+
     pub fn modulate_integer(num: i64) -> String {
         let mut res = String::new();
         let abs;
@@ -135,5 +167,10 @@ mod tests {
             "{}",
             Expr::cons(Expr::cons(Expr::vector(0, 1), Nil), Nil).modulate()
         );
+    }
+    #[test]
+    fn demodulate() {
+        use crate::expr::Expr::*;
+        println!("{:?}", Expr::demodulate("11111101100001011000100000"));
     }
 }
