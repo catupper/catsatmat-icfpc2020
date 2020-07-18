@@ -111,7 +111,7 @@ async fn main() -> Result<()> {
         .get(2)
         .cloned()
         .unwrap_or_else(|| DEFAULT_PLAYER_KEY.to_string());
-    sample(&client, &server_url, &player_key).await?;
+    //sample(&client, &server_url, &player_key).await?;
     let response = aliens(&client, &server_url, "1111011000010110001000".to_string()).await?;//((1,2))
     print!("{}", response);
     Ok(())
