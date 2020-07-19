@@ -115,10 +115,9 @@ async fn main() -> Result<()> {
             .find(|&ship| ship.role == 1 - role)
             .unwrap();
         let commands = vec![
-            Command::accelerate(ship_id, base_velocity).into(),
-            //Command::shoot(other_ship.ship_id, other_ship.position).into(),
+            //            Command::accelerate(ship_id, base_velocity).into(),
+            Command::shoot(other_ship.ship_id, other_ship.position).into(),
         ];
-        //let commands = vec![Command::shoot(ship_id, (1, 2)).into()];
         let response = sender
             .command(player_key, Expr::from_vector(commands))
             .await?;
