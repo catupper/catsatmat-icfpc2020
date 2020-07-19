@@ -52,7 +52,7 @@ impl From<Expr> for Ship {
 
                 if let (Int(px), Int(py)) = position.carcdr() {
                     if let (Int(vx), Int(vy)) = velocity.carcdr() {
-                        println!("Commands {}", commands);
+                        let commands = commands.car();
                         return Ship {
                             role,
                             ship_id,
