@@ -79,34 +79,34 @@ async fn main() -> Result<()> {
     let response = sender.join(player_key).await?;
     let (current_game_stage, list_a, _state) = response.as_game_response();
     let mut game_stage = current_game_stage;
-    let is_defender = list_a.cdr().car() == Expr::Int(1);
-    let ship_id;
-    info!("IsDefneder: {}", is_defender);
-    assert_eq!(game_stage, 0);
-    if is_defender {
-        ship_id = 1;
-        let response = sender.start(player_key, 1, 1, 2, 2).await?;
-        let (current_game_stage, _list_a, _state) = response.as_game_response();
-        game_stage = current_game_stage;
+    let role = if list_a.cdr().car() == Expr::Int(1) {
+        1
     } else {
-        ship_id = 0;
-        let response = sender.start(player_key, 1, 1, 1, 1).await?;
-        let (current_game_stage, _list_a, _state) = response.as_game_response();
-        game_stage = current_game_stage;
-    }
+        0
+    };
+    info!("IsDefneder: {}", role);
+    assert_eq!(game_stage, 0);
+    let response = sender.start(player_key, 1, 1, 1, 1).await?;
+    let (current_game_stage, _list_a, state) = response.as_game_response();
+    game_stage = current_game_stage;
+    let mut state: State = state.into();
+    let my_ship = state.ships.iter().find(|&ship| ship.role == role).unwrap();
+    let ship_id = my_ship.ship_id;
 
     while game_stage != 2 {
-        std::thread::sleep(std::time::Duration::from_millis(500));
-        let commands = vec![Command::accelerate(ship_id, (1, 2)).into()];
+        let my_ship = state.ships.iter().find(|&ship| ship.role == role).unwrap();
+        let (x, y) = my_ship.position;
+        let commands = vec![Command::accelerate(ship_id, (-x / x.abs(), -y / y.abs())).into()];
         //let commands = vec![Command::shoot(ship_id, (1, 2)).into()];
         let response = sender
             .command(player_key, Expr::from_vector(commands))
             .await?;
-        let (current_game_stage, list_a, state) = response.as_game_response();
+        let (current_game_stage, list_a, tmp_state) = response.as_game_response();
         game_stage = current_game_stage;
         info!("GAME STAGE:{}", game_stage);
         info!("List A:{}", list_a);
-        info!("State:{}", state);
+        info!("State:{}", tmp_state);
+        state = tmp_state.into();
         println!("\n{}\nx", "=".repeat(50));
     }
     Ok(())
