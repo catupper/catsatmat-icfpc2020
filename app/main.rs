@@ -106,7 +106,7 @@ async fn main() -> Result<()> {
         //        let now_other_pos = other_ship.position;
 
         let my_ship = state.ships.iter().find(|&ship| ship.role == role).unwrap();
-        let mut commands = vec![Command::shoot(other_ship.ship_id, other_ship.position).into()];
+        let mut commands = vec![Command::shoot(my_ship.ship_id, other_ship.position).into()];
         if let Some(Command::Accelerate { ship_id: _, vector }) =
             other_ship.commands.iter().find(|x| x.is_accelerate())
         {
