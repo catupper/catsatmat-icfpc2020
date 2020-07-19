@@ -53,6 +53,7 @@ async fn sample(server_url: &str, player_key: &str) -> Result<()> {
 
 
 const DEFAULT_URL: &str = "https://icfpc2020-api.testkontur.ru";
+const API_KEY: &str = "41ff8e29e5fa4596928186fcfe5bfee2";
 const DEFAULT_PLAYER_KEY: &str = "11111";
 
 #[tokio::main]
@@ -67,8 +68,13 @@ async fn main() -> Result<()> {
         .get(2)
         .cloned()
         .unwrap_or_else(|| DEFAULT_PLAYER_KEY.to_string());
-    sample(&server_url, &player_key).await?;
-    let response = send("1101000".to_string()).await?;//((1,2))
+    if player_key != DEFAULT_PLAYER_KEY.to_string(){
+        sample(&server_url, &player_key).await?;
+    }
+    let sender = Sender::new(server_url.to_string(), API_KEY.to_string());
+    let response = sender.join(player_key.parse()?).await?;
+    println!("{}", response);
+    let response = sender.send_expr(response).await?;//((1,2))
     print!("{}", response);
     Ok(())
 }

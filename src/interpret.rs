@@ -1,14 +1,38 @@
-use crate::Expr::{self, *};
+use crate::{
+    Board,
+    Expr::{self, *},
+    Sender,
+};
 
 use std::collections::HashMap;
 
 pub struct Interpreter {
     pub env: HashMap<i32, Expr>,
+    pub sender: Sender,
+}
+
+pub fn multiple_draw(list: Expr) -> Vec<Board> {
+    list.iter()
+        .map(|points| {
+            let points = points
+                .iter()
+                .map(|vec| {
+                    if let Cons2(x, y) = vec {
+                        if let (Int(x), Int(y)) = (*x, *y) {
+                            return (x, y);
+                        }
+                    }
+                    panic!("ParseFailed not vector");
+                })
+                .collect();
+            Board { points }
+        })
+        .collect()
 }
 
 impl Interpreter {
-    pub fn new(env: HashMap<i32, Expr>) -> Self {
-        Self { env }
+    pub fn new(env: HashMap<i32, Expr>, sender: Sender) -> Self {
+        Self { env, sender }
     }
 
     /// Apできなくなるまで評価する
@@ -16,6 +40,7 @@ impl Interpreter {
         loop {
             match expr {
                 Def(ind) => {
+                    println!(":{}", ind);
                     expr = self.env.get(&ind).unwrap().clone();
                 }
                 Ap(func, arg) => {
@@ -127,5 +152,40 @@ impl Interpreter {
             Cons2(x, y) => Cons2(Box::new(self.apply_cons(*x)), Box::new(self.apply_cons(*y))),
             x => x,
         }
+    }
+
+    /// return newState and draw_somthing
+    pub fn f38(&self, protocol: Expr, expr: Expr) -> (Expr, Vec<Board>) {
+        let mut rt = tokio::runtime::Runtime::new().unwrap();
+        println!("f38");
+        if let Cons2(flag, expr) = self.apply(expr) {
+            println!("Flag: {}", *flag);
+            if let Cons2(new_state, expr) = self.apply(*expr) {
+                let new_state = self.apply_cons(*new_state);
+                println!("NewState: {}", new_state);
+                if let Cons2(data, nil) = self.apply(*expr) {
+                    assert_eq!(*nil, Nil);
+                    if self.apply(*flag) == Int(0) {
+                        return (new_state, multiple_draw(self.apply_cons(*data)));
+                    } else {
+                        println!("SENT: {:?}", data);
+                        let recieve = Expr::demodulate(
+                            &rt.block_on(self.sender.send(data.modulate())).unwrap(),
+                        )
+                        .0;
+                        println!("RECIEVED: {:?}", recieve);
+                        return self.interact(protocol, new_state, recieve);
+                    }
+                }
+            }
+        }
+        panic!("Parse Failed: f38")
+    }
+
+    pub fn interact(&self, protocol: Expr, state: Expr, vector: Expr) -> (Expr, Vec<Board>) {
+        self.f38(
+            protocol.clone(),
+            Expr::ap(Expr::ap(protocol, state), vector),
+        )
     }
 }
