@@ -195,7 +195,7 @@ impl Expr {
             abs = num;
         }
         let mut n = 0;
-        while (1i64 << (n * 4)) <= abs {
+        while n * 4 < 64 && (1i64 << (n * 4)) <= abs {
             n += 1;
         }
         res += &"1".repeat(n);
