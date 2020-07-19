@@ -43,7 +43,7 @@ async fn sample(server_url: &str, player_key: &str) -> Result<()> {
             }
         },
         Err(err) => {
-            println!("Unexpected server response:\n{}", err);
+            error!("Unexpected server response:\n{}", err);
             process::exit(1);
         }
     }

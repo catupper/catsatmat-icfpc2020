@@ -63,7 +63,7 @@ impl Sender {
         let src = expr.modulate();
         let res = self.send(src).await?;
         let res_expr = Expr::demodulate(&res).0;
-        info!("Sending Expr: {}", res_expr);
+        info!("Receiving Expr: {}", res_expr);
         Ok(res_expr)
     }
 
@@ -85,7 +85,7 @@ impl Sender {
         match client.request(req).await {
             Ok(mut res) => match res.status() {
                 StatusCode::OK => {
-                    print!("Server response: ");
+                    info!("Server response: ");
                     let mut response = "".to_string();
                     while let Some(chunk) = res.body_mut().data().await {
                         match chunk {
