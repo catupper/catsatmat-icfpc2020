@@ -9,18 +9,18 @@ fi
 
 if [ $1 = "run" ]; then
     if [ $# -ne 3 ]; then
-        echo "./yoshina.sh build でビルド"
-        echo "./yoshina.sh run \`serverUrl\` \`playerKey\` で実行"
-        echo "runのときは引数がいるよ"
-        exit 1
+        docker run catsatmat-icfpc2020-local-judge-container $2 $3
+        exit 0
     fi
-
-    docker run catsatmat-icfpc2020-local-judge-container $2 $3
-    exit 0
+    if [ $# -ne 1 ]; then
+        docker run catsatmat-icfpc2020-local-judge-container
+        exit 0
+    fi
 fi
 
 
 echo "./yoshina.sh build でビルド"
+echo "./yoshina.sh run  あるいは"
 echo "./yoshina.sh run `serverUrl` `playerKey` で実行"
 echo "それ以外は何もしないよ"
 

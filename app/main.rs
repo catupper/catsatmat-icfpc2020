@@ -57,7 +57,9 @@ const DEFAULT_PLAYER_KEY: &str = "1";
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    env_logger::init();
+    env_logger::Builder::from_default_env()
+        .format_timestamp_millis()
+        .init();
 
     let args: Vec<String> = env::args().collect();
 
@@ -78,7 +80,7 @@ async fn main() -> Result<()> {
     let (current_game_stage, _list_a, _state) = response.as_game_response();
     let mut game_stage = current_game_stage;
     if game_stage == 0 {
-        let response = sender.start(player_key, 1, 1, 50, 50).await?;
+        let response = sender.start(player_key, 1, 1, 2, 2).await?;
         let (current_game_stage, _list_a, _state) = response.as_game_response();
         game_stage = current_game_stage;
     }
