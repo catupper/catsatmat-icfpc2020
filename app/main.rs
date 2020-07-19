@@ -101,7 +101,7 @@ async fn main() -> Result<()> {
         let base_acceleration = (-gv.0, -gv.1);
         let commands = vec![
             Command::accelerate(my_ship.ship_id, base_acceleration).into(),
-            Command::shoot(other_ship.ship_id, other_ship.position).into(),
+            //            Command::shoot(other_ship.ship_id, other_ship.position).into(),
         ];
         let response = sender
             .command(player_key, Expr::from_vector(commands))
