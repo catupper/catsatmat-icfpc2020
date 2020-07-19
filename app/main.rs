@@ -92,11 +92,12 @@ async fn main() -> Result<()> {
     let mut state: State = state.into();
     let my_ship = state.ships.iter().find(|&ship| ship.role == role).unwrap();
     let ship_id = my_ship.ship_id;
-
     while game_stage != 2 {
         let my_ship = state.ships.iter().find(|&ship| ship.role == role).unwrap();
         let (x, y) = my_ship.position;
-        let commands = vec![Command::accelerate(ship_id, (-x / x.abs(), -y / y.abs())).into()];
+        let v = if state.turn <= 2 { 2 } else { 1 };
+        let commands =
+            vec![Command::accelerate(ship_id, (v * -x / x.abs(), v * -y / y.abs())).into()];
         //let commands = vec![Command::shoot(ship_id, (1, 2)).into()];
         let response = sender
             .command(player_key, Expr::from_vector(commands))
@@ -107,7 +108,7 @@ async fn main() -> Result<()> {
         info!("List A:{}", list_a);
         info!("State:{}", tmp_state);
         state = tmp_state.into();
-        println!("\n{}\nx", "=".repeat(50));
+        info!("\n\n\n{}\n\n", "=".repeat(50));
     }
     Ok(())
 }
