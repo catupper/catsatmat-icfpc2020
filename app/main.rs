@@ -90,32 +90,17 @@ async fn main() -> Result<()> {
     let (current_game_stage, _list_a, state) = response.as_game_response();
     game_stage = current_game_stage;
     let mut state: State = state.into();
-    let my_ship = state.ships.iter().find(|&ship| ship.role == role).unwrap();
-    let ship_id = my_ship.ship_id;
-
-    let (px, py) = my_ship.position;
-    #[allow(clippy::collapsible_if)]
-    let base_velocity = if px.abs() >= py.abs() {
-        if px > 0 {
-            (-1, 0)
-        } else {
-            (1, 0)
-        }
-    } else {
-        if py > 0 {
-            (0, -1)
-        } else {
-            (0, 1)
-        }
-    };
     while game_stage != 2 {
         let other_ship = state
             .ships
             .iter()
             .find(|&ship| ship.role == 1 - role)
             .unwrap();
+        let my_ship = state.ships.iter().find(|&ship| ship.role == role).unwrap();
+        let gv = gravity(&my_ship.position);
+        let base_acceleration = (-gv.0, -gv.1);
         let commands = vec![
-            //            Command::accelerate(ship_id, base_velocity).into(),
+            Command::accelerate(my_ship.ship_id, base_acceleration).into(),
             Command::shoot(other_ship.ship_id, other_ship.position).into(),
         ];
         let response = sender
@@ -130,4 +115,22 @@ async fn main() -> Result<()> {
         info!("\n\n\n{}\n\n", "=".repeat(50));
     }
     Ok(())
+}
+
+fn gravity(pos: &(i64, i64)) -> (i64, i64) {
+    let (px, py) = *pos;
+    #[allow(clippy::collapsible_if)]
+    if px.abs() >= py.abs() {
+        if px > 0 {
+            (1, 0)
+        } else {
+            (-1, 0)
+        }
+    } else {
+        if py > 0 {
+            (0, 1)
+        } else {
+            (0, -1)
+        }
+    }
 }
