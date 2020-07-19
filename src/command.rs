@@ -46,7 +46,12 @@ impl From<Command> for Expr {
                 x3,
             } => {
                 let (x, y) = target;
-                Expr::from_vector(vec![Int(2), Int(ship_id), Expr::vector(x, y), Int(x3)])
+                Expr::from_vector(vec![
+                    Int(2),
+                    Int(ship_id),
+                    Expr::vector(x, y),
+                    Expr::vector(x3, 1),
+                ])
             }
         }
     }
