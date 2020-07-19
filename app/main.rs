@@ -86,7 +86,7 @@ async fn main() -> Result<()> {
     };
     info!("IsDefneder: {}", role);
     assert_eq!(game_stage, 0);
-    let response = sender.start(player_key, 1, 1, 1, 1).await?;
+    let response = sender.start(player_key, 256, 1, 1, 1).await?;
     let (current_game_stage, _list_a, state) = response.as_game_response();
     game_stage = current_game_stage;
     let mut state: State = state.into();
@@ -95,7 +95,8 @@ async fn main() -> Result<()> {
     while game_stage != 2 {
         let my_ship = state.ships.iter().find(|&ship| ship.role == role).unwrap();
         let (x, y) = my_ship.position;
-        let v = if state.turn <= 2 { 2 } else { 1 };
+        //        let v = if state.turn <= 2 { 2 } else { 1 };
+        let v = 1;
         let commands =
             vec![Command::accelerate(ship_id, (v * -x / x.abs(), v * -y / y.abs())).into()];
         //let commands = vec![Command::shoot(ship_id, (1, 2)).into()];
