@@ -54,7 +54,7 @@ async fn sample(server_url: &str, player_key: &str) -> Result<()> {
 
 const DEFAULT_URL: &str = "https://icfpc2020-api.testkontur.ru";
 const API_KEY: &str = "41ff8e29e5fa4596928186fcfe5bfee2";
-const DEFAULT_PLAYER_KEY: &str = "1351512671130970973";
+const DEFAULT_PLAYER_KEY: &str = "1";
 
 #[tokio::main]
 async fn main() -> Result<()> {
