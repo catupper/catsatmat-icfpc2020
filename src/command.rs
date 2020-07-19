@@ -46,7 +46,7 @@ impl Command {
         Command::Shoot {
             ship_id,
             target,
-            x3: Nil,
+            x3: Int(10),
         }
     }
     pub fn is_shoot(&self) -> bool {
