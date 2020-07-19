@@ -80,16 +80,14 @@ async fn main() -> Result<()> {
     let (current_game_stage, list_a, _state) = response.as_game_response();
     let mut game_stage = current_game_stage;
     let is_defender = list_a.cdr().car() == Expr::Int(1);
-    let ship_id;
+    let ship_id = player_key;
     info!("IsDefneder: {}", is_defender);
     assert_eq!(game_stage, 0);
     if is_defender {
-        ship_id = 1;
         let response = sender.start(player_key, 1, 1, 2, 2).await?;
         let (current_game_stage, _list_a, _state) = response.as_game_response();
         game_stage = current_game_stage;
     } else {
-        ship_id = 0;
         let response = sender.start(player_key, 1, 1, 1, 1).await?;
         let (current_game_stage, _list_a, _state) = response.as_game_response();
         game_stage = current_game_stage;
@@ -98,6 +96,7 @@ async fn main() -> Result<()> {
     while game_stage != 2 {
         std::thread::sleep(std::time::Duration::from_millis(500));
         let commands = vec![Command::accelerate(ship_id, (1, 2)).into()];
+        //let commands = vec![Command::shoot(ship_id, (1, 2)).into()];
         let response = sender
             .command(player_key, Expr::from_vector(commands))
             .await?;
