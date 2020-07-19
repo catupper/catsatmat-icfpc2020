@@ -127,6 +127,14 @@ impl Expr {
         Expr::Ap(Box::new(func), Box::new(arg))
     }
 
+    pub fn carcdr(self) -> (Expr, Expr) {
+        if let Expr::Cons2(car, cdr) = self {
+            (*car, *cdr)
+        } else {
+            panic!()
+        }
+    }
+
     pub fn vector(x: i64, y: i64) -> Expr {
         Expr::Cons2(Box::new(Expr::Int(x)), Box::new(Expr::Int(y)))
     }

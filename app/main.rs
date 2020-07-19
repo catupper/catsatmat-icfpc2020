@@ -68,13 +68,24 @@ async fn main() -> Result<()> {
         .get(2)
         .cloned()
         .unwrap_or_else(|| DEFAULT_PLAYER_KEY.to_string());
-    if player_key != DEFAULT_PLAYER_KEY.to_string(){
+    if player_key != DEFAULT_PLAYER_KEY{
         sample(&server_url, &player_key).await?;
     }
     let sender = Sender::new(server_url.to_string(), API_KEY.to_string());
-    let response = sender.join(player_key.parse()?).await?;
+    let player_key = player_key.parse()?;
+
+    let response = sender.join(player_key).await?;
     println!("{}", response);
-    let response = sender.send_expr(response).await?;//((1,2))
-    print!("{}", response);
+
+    let response = sender.start(player_key,0,0,0,0).await?;
+    println!("{}", response);
+    for _ in 0i32..10{
+        let (stage_id, list_a, state) = sender.command(player_key, Expr::Nil).await?;
+        println!("Stage ID:{}", stage_id);
+        println!("List A:{}", list_a);
+        println!("State:{}", state);
+        println!("\n{}\n", "=".repeat(50))
+    }
+    println!("{}", response);
     Ok(())
 }
