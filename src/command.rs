@@ -86,25 +86,24 @@ impl From<Command> for Expr {
 impl From<Expr> for Command {
     fn from(expr: Expr) -> Self {
         if let (Int(command_num), expr) = expr.carcdr() {
-            if let (Int(ship_id), expr) = expr.carcdr() {
-                if command_num == 1 {
-                    return Command::Denotate { ship_id };
-                }
-                let (vector, expr) = expr.carcdr();
-                if let (Int(x), Int(y)) = vector.carcdr() {
-                    if command_num == 0 {
-                        return Command::Accelerate {
-                            ship_id,
-                            vector: (x, y),
-                        };
-                    }
-                    let x3 = expr.car();
-                    return Command::Shoot {
+            let ship_id = 0;
+            if command_num == 1 {
+                return Command::Denotate { ship_id };
+            }
+            let (vector, expr) = expr.carcdr();
+            if let (Int(x), Int(y)) = vector.carcdr() {
+                if command_num == 0 {
+                    return Command::Accelerate {
                         ship_id,
-                        target: (x, y),
-                        x3,
+                        vector: (x, y),
                     };
                 }
+                let x3 = expr.car();
+                return Command::Shoot {
+                    ship_id,
+                    target: (x, y),
+                    x3,
+                };
             }
         }
         panic!("Command Parse Failed {}", expr);
