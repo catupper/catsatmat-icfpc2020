@@ -55,8 +55,14 @@ fn main() {
     println!("{}", galaxy);
     loop {
         println!("State: {}", state);
+        let mut input = String::new();
+        println!("Click:");
+        std::io::stdin().read_line(&mut input).unwrap();
+        let mut it = input.split_whitespace().map(|x| x.parse::<i64>().unwrap());
+        let x = it.next().unwrap();
+        let y = it.next().unwrap();
         let (new_state, boards) =
-            interpreter.interact(galaxy.clone(), state.clone(), Expr::vector(0, 0));
+            interpreter.interact(galaxy.clone(), state.clone(), Expr::vector(x, y));
         state = new_state;
         boards.iter().for_each(Board::draw);
     }

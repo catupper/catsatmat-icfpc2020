@@ -46,7 +46,7 @@ impl Command {
         Command::Shoot {
             ship_id,
             target,
-            x3: Int(64),
+            x3: Int(1),
         }
     }
     pub fn is_shoot(&self) -> bool {
@@ -106,6 +106,11 @@ impl From<Expr> for Command {
                 };
             }
         }
-        panic!("Command Parse Failed {}", expr);
+        println!("Command Parse Failed {}", expr);
+        Command::Shoot {
+            ship_id: 0,
+            target: (1, 1),
+            x3: Nil,
+        }
     }
 }

@@ -40,7 +40,7 @@ impl Interpreter {
         loop {
             match expr {
                 Def(ind) => {
-                    println!(":{}", ind);
+                    log::debug!(":{}", ind);
                     expr = self.env.get(&ind).unwrap().clone();
                 }
                 Ap(func, arg) => {
