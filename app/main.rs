@@ -110,10 +110,10 @@ async fn main() -> Result<()> {
         if let Some(Command::Accelerate { ship_id: _, vector }) =
             other_ship.commands.iter().find(|x| x.is_accelerate())
         {
-            commands.push(Command::accelerate(my_ship.ship_id, (vector.0, vector.1)).into());
+            commands.push(Command::accelerate(my_ship.ship_id, (-vector.0, -vector.1)).into());
         } else if turn == 0 {
             let gv = gravity(&my_ship.position);
-            commands.push(Command::accelerate(my_ship.ship_id, (-gv.0, -gv.1).into()).into());
+            commands.push(Command::accelerate(my_ship.ship_id, (-gv.0, -gv.1)).into());
         }
 
         let response = sender
