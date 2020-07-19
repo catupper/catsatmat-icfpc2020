@@ -76,16 +76,20 @@ async fn main() -> Result<()> {
 
     let response = sender.join(player_key).await?;
     println!("{}", response);
-
-    let response = sender.start(player_key,0,0,0,0).await?;
-    println!("{}", response);
+    let (game_stage, _, _) = response.as_game_response();
+    if game_stage == 0{
+        let response = sender.start(player_key,0,0,0,0).await?;
+        println!("{}", response);
+    }
     for _ in 0i32..10{
-        let (stage_id, list_a, state) = sender.command(player_key, Expr::Nil).await?;
-        println!("Stage ID:{}", stage_id);
+        let (game_stage, list_a, state) = sender.command(player_key, Expr::Nil).await?.as_game_response();
+        println!("Stage ID:{}", game_stage);
         println!("List A:{}", list_a);
         println!("State:{}", state);
-        println!("\n{}\nx", "=".repeat(50))
+        println!("\n{}\nx", "=".repeat(50));
+        if game_stage == 2{
+            break;
+        }
     }
-    println!("{}", response);
     Ok(())
 }

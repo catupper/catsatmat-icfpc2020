@@ -41,18 +41,11 @@ impl Sender{
         self.send_expr(expr).await
     }
 
-    pub async fn command(&self, player_key:i64, commands:Expr)->Result<(i64, Expr, Expr)>{
+    pub async fn command(&self, player_key:i64, commands:Expr)->Result<Expr>{
         let expr = Expr::from_vector(
             vec![Expr::Int(4), Expr::Int(player_key), commands]
         );
-        let res = self.send_expr(expr).await?;
-        let (one, expr) = res.carcdr();
-        assert_eq!(one, Expr::Int(1));
-        let (game_stage, expr) = expr.carcdr();
-        let (list_a, expr) = expr.carcdr();
-        let (state, nil) = expr.carcdr();
-        assert_eq!(nil, Expr::Nil);
-        Ok((match game_stage{Expr::Int(x) => x,_=>panic!()}, list_a, state))
+        self.send_expr(expr).await
     }
     
     pub async fn send_expr(&self, expr: Expr)->Result<Expr>{
