@@ -127,8 +127,8 @@ impl Expr {
         Expr::Ap(Box::new(func), Box::new(arg))
     }
 
-    pub fn carcdr(self) -> (Expr, Expr) {
-        if let Expr::Cons2(car, cdr) = self {
+    pub fn carcdr(&self) -> (Expr, Expr) {
+        if let Expr::Cons2(car, cdr) = self.clone() {
             (*car, *cdr)
         } else {
             panic!()
@@ -208,6 +208,23 @@ impl Expr {
             }
         }
         res
+    }
+
+    pub fn as_game_response(&self) -> (i64, Expr, Expr) {
+        let (one, expr) = self.carcdr();
+        assert_eq!(one, Expr::Int(1));
+        let (game_stage, expr) = expr.carcdr();
+        let (list_a, expr) = expr.carcdr();
+        let (state, nil) = expr.carcdr();
+        assert_eq!(nil, Expr::Nil);
+        (
+            match game_stage {
+                Expr::Int(x) => x,
+                _ => panic!(),
+            },
+            list_a,
+            state,
+        )
     }
 }
 
