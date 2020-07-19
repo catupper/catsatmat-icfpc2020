@@ -3,7 +3,7 @@ use crate::Expr;
 use http_body::Body as _;
 use hyper::{Body, Client, Method, Request, StatusCode};
 use hyper_tls::HttpsConnector;
-use log::{error, info};
+use log::{debug, error, info};
 
 use std::process;
 
