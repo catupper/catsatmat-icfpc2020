@@ -15,31 +15,29 @@ async fn sample(server_url: &str, player_key: &str) -> Result<()> {
         .body(Body::from(player_key.to_string()))?;
 
     println!("ServerUrl: {}; PlayerKey: {}", server_url, player_key);
-    
+
     match client.request(req).await {
-        Ok(mut res) => {
-            match res.status() {
-                StatusCode::OK => {
-                    print!("Server response: ");
-                    while let Some(chunk) = res.body_mut().data().await {
-                        match chunk {
-                            Ok(content) => println!("{:?}", content),
-                            Err(why) => println!("error reading body: {:?}", why)
-                        }
+        Ok(mut res) => match res.status() {
+            StatusCode::OK => {
+                print!("Server response: ");
+                while let Some(chunk) = res.body_mut().data().await {
+                    match chunk {
+                        Ok(content) => println!("{:?}", content),
+                        Err(why) => println!("error reading body: {:?}", why),
                     }
-                },
-                _ => {
-                    println!("Unexpected server response:");
-                    println!("HTTP code: {}", res.status());
-                    print!("Response body: ");
-                    while let Some(chunk) = res.body_mut().data().await {
-                        match chunk {
-                            Ok(content) => println!("{:?}", content),
-                            Err(why) => println!("error reading body: {:?}", why)
-                        }
-                    }
-                    process::exit(2);
                 }
+            }
+            _ => {
+                println!("Unexpected server response:");
+                println!("HTTP code: {}", res.status());
+                print!("Response body: ");
+                while let Some(chunk) = res.body_mut().data().await {
+                    match chunk {
+                        Ok(content) => println!("{:?}", content),
+                        Err(why) => println!("error reading body: {:?}", why),
+                    }
+                }
+                process::exit(2);
             }
         },
         Err(err) => {
@@ -50,7 +48,6 @@ async fn sample(server_url: &str, player_key: &str) -> Result<()> {
 
     Ok(())
 }
-
 
 const DEFAULT_URL: &str = "https://icfpc2020-api.testkontur.ru";
 const API_KEY: &str = "41ff8e29e5fa4596928186fcfe5bfee2";
@@ -68,7 +65,7 @@ async fn main() -> Result<()> {
         .get(2)
         .cloned()
         .unwrap_or_else(|| DEFAULT_PLAYER_KEY.to_string());
-    if player_key != DEFAULT_PLAYER_KEY{
+    if player_key != DEFAULT_PLAYER_KEY {
         sample(&server_url, &player_key).await?;
     }
     let sender = Sender::new(server_url.to_string(), API_KEY.to_string());
@@ -78,14 +75,16 @@ async fn main() -> Result<()> {
     let (current_game_stage, _list_a, _state) = response.as_game_response();
     let mut game_stage = current_game_stage;
     println!("{}", game_stage);
-    if game_stage == 0{
-        let response = sender.start(player_key,510,0,0,1).await?;
+    if game_stage == 0 {
+        let response = sender.start(player_key, 510, 0, 0, 1).await?;
         println!("{}", response);
         let (current_game_stage, _list_a, _state) = response.as_game_response();
         game_stage = current_game_stage;
     }
-    while game_stage != 2{
-        let (current_game_stage, list_a, state) = sender.command(player_key, Expr::Nil).await?.as_game_response();
+    while game_stage != 2 {
+        let response = sender.command(player_key, Expr::Nil).await?;
+        println!("{}", response);
+        let (current_game_stage, list_a, state) = response.as_game_response();
         game_stage = current_game_stage;
         println!("Stage ID:{}", game_stage);
         println!("List A:{}", list_a);

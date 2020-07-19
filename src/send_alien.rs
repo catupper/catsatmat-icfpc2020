@@ -20,6 +20,7 @@ impl Sender{
     }
 
     pub async fn join_with_list(&self, player_key: i64, list: Expr)->Result<Expr>{
+        println!("JOIN");
         let expr = Expr::from_vector(
             vec![Expr::Int(2), Expr::Int(player_key), list]
         );
@@ -31,6 +32,7 @@ impl Sender{
     }
 
     pub async fn start(&self, player_key:i64, num1: i64,num2: i64,num3: i64,num4: i64)->Result<Expr>{
+        println!("START!");
         let expr = Expr::from_vector(
             vec![Expr::Int(3), Expr::Int(player_key),
                  Expr::from_vector(
@@ -42,6 +44,7 @@ impl Sender{
     }
 
     pub async fn command(&self, player_key:i64, commands:Expr)->Result<Expr>{
+        println!("COMMAND!");
         let expr = Expr::from_vector(
             vec![Expr::Int(4), Expr::Int(player_key), commands]
         );
