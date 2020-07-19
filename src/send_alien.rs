@@ -1,10 +1,11 @@
-use http_body::Body as _;
+use crate::Expr;
 
+use http_body::Body as _;
 use hyper::{Body, Client, Method, Request, StatusCode};
 use hyper_tls::HttpsConnector;
-use std::process;
+use log::{error, info};
 
-use crate::Expr;
+use std::process;
 
 pub struct Sender {
     url: String,
@@ -19,9 +20,8 @@ impl Sender {
     }
 
     pub async fn join_with_list(&self, player_key: i64, list: Expr) -> Result<Expr> {
-        println!("JOIN");
+        info!("JOIN");
         let expr = Expr::from_vector(vec![Expr::Int(2), Expr::Int(player_key), list]);
-        println!("{}", expr);
         self.send_expr(expr).await
     }
 
@@ -37,7 +37,7 @@ impl Sender {
         num3: i64,
         num4: i64,
     ) -> Result<Expr> {
-        println!("START!");
+        info!("START!");
         let expr = Expr::from_vector(vec![
             Expr::Int(3),
             Expr::Int(player_key),
@@ -48,22 +48,23 @@ impl Sender {
                 Expr::Int(num4),
             ]),
         ]);
-        println!("{}", expr);
 
         self.send_expr(expr).await
     }
 
     pub async fn command(&self, player_key: i64, commands: Expr) -> Result<Expr> {
-        println!("COMMAND!");
+        info!("COMMAND!");
         let expr = Expr::from_vector(vec![Expr::Int(4), Expr::Int(player_key), commands]);
-        println!("{}", expr);
         self.send_expr(expr).await
     }
 
     pub async fn send_expr(&self, expr: Expr) -> Result<Expr> {
+        info!("Sending Expr: {}", expr);
         let src = expr.modulate();
-        let res = self.send(src).await;
-        res.map(|src| Expr::demodulate(&src).0)
+        let res = self.send(src).await?;
+        let res_expr = Expr::demodulate(&res).0;
+        info!("Sending Expr: {}", res_expr);
+        Ok(res_expr)
     }
 
     pub async fn send(&self, request_string: String) -> Result<String> {
@@ -76,7 +77,7 @@ impl Sender {
             .uri(server_url.clone())
             .body(Body::from(request_string.clone()))?;
 
-        println!(
+        info!(
             "ServerUrl: {}; requestString: {}",
             server_url, request_string
         );
@@ -90,28 +91,28 @@ impl Sender {
                         match chunk {
                             Ok(content) => {
                                 response = response + &String::from_utf8(content.to_vec()).unwrap();
-                                println!("{:?}", content)
+                                info!("{:?}", content)
                             }
-                            Err(why) => println!("error reading body: {:?}", why),
+                            Err(why) => error!("error reading body: {:?}", why),
                         }
                     }
                     Ok(response)
                 }
                 _ => {
-                    println!("Unexpected server response:");
-                    println!("HTTP code: {}", res.status());
-                    print!("Response body: ");
+                    info!("Unexpected server response:");
+                    info!("HTTP code: {}", res.status());
+                    info!("Response body: ");
                     while let Some(chunk) = res.body_mut().data().await {
                         match chunk {
-                            Ok(content) => println!("{:?}", content),
-                            Err(why) => println!("error reading body: {:?}", why),
+                            Ok(content) => info!("{:?}", content),
+                            Err(why) => error!("error reading body: {:?}", why),
                         }
                     }
                     process::exit(2);
                 }
             },
             Err(err) => {
-                println!("Unexpected server response:\n{}", err);
+                info!("Unexpected server response:\n{}", err);
                 process::exit(1);
             }
         }

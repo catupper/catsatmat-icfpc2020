@@ -18,3 +18,5 @@ tokio = { version = "0.2.21", features = ["macros"] }
 hyper = "0.13.5"
 hyper-tls = "0.4.3"
 http-body = "0.3.1"
+env_logger = "0.7.1"
+log = "0.4.11"

@@ -1,9 +1,11 @@
+use app::*;
 use http_body::Body as _;
+use log::{error, info};
+
 use hyper::{Body, Client, Method, Request, StatusCode};
+
 use std::env;
 use std::process;
-
-use app::*;
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error + Send + Sync>>;
 
@@ -14,27 +16,27 @@ async fn sample(server_url: &str, player_key: &str) -> Result<()> {
         .uri(server_url)
         .body(Body::from(player_key.to_string()))?;
 
-    println!("ServerUrl: {}; PlayerKey: {}", server_url, player_key);
+    info!("ServerUrl: {}; PlayerKey: {}", server_url, player_key);
 
     match client.request(req).await {
         Ok(mut res) => match res.status() {
             StatusCode::OK => {
-                print!("Server response: ");
+                info!("Server response: ");
                 while let Some(chunk) = res.body_mut().data().await {
                     match chunk {
-                        Ok(content) => println!("{:?}", content),
-                        Err(why) => println!("error reading body: {:?}", why),
+                        Ok(content) => info!("{:?}", content),
+                        Err(why) => error!("error reading body: {:?}", why),
                     }
                 }
             }
             _ => {
-                println!("Unexpected server response:");
-                println!("HTTP code: {}", res.status());
-                print!("Response body: ");
+                info!("Unexpected server response:");
+                info!("HTTP code: {}", res.status());
+                info!("Response body: ");
                 while let Some(chunk) = res.body_mut().data().await {
                     match chunk {
-                        Ok(content) => println!("{:?}", content),
-                        Err(why) => println!("error reading body: {:?}", why),
+                        Ok(content) => info!("{:?}", content),
+                        Err(why) => error!("error reading body: {:?}", why),
                     }
                 }
                 process::exit(2);
@@ -55,6 +57,8 @@ const DEFAULT_PLAYER_KEY: &str = "1";
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    env_logger::init();
+
     let args: Vec<String> = env::args().collect();
 
     let server_url = args
@@ -71,24 +75,20 @@ async fn main() -> Result<()> {
     let sender = Sender::new(server_url.to_string(), API_KEY.to_string());
     let player_key = player_key.parse()?;
     let response = sender.join(player_key).await?;
-    println!("{}", response);
     let (current_game_stage, _list_a, _state) = response.as_game_response();
     let mut game_stage = current_game_stage;
-    println!("{}", game_stage);
     if game_stage == 0 {
-        let response = sender.start(player_key, 1, 1, 1, 1).await?;
-        println!("{}", response);
+        let response = sender.start(player_key, 1, 1, 50, 50).await?;
         let (current_game_stage, _list_a, _state) = response.as_game_response();
         game_stage = current_game_stage;
     }
     while game_stage != 2 {
         let response = sender.command(player_key, Expr::Nil).await?;
-        println!("{}", response);
         let (current_game_stage, list_a, state) = response.as_game_response();
         game_stage = current_game_stage;
-        println!("GAME STAGE:{}", game_stage);
-        println!("List A:{}", list_a);
-        println!("State:{}", state);
+        info!("GAME STAGE:{}", game_stage);
+        info!("List A:{}", list_a);
+        info!("State:{}", state);
         println!("\n{}\nx", "=".repeat(50));
     }
     Ok(())
