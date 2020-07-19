@@ -107,6 +107,6 @@ impl From<Expr> for Command {
                 }
             }
         }
-        panic!();
+        panic!("Command Parse Failed {}", expr);
     }
 }
