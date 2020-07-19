@@ -37,7 +37,7 @@ impl From<Command> for Expr {
         match command {
             Command::Accelerate { ship_id, vector } => {
                 let (x, y) = vector;
-                Expr::from_vector(vec![Int(1), Int(ship_id), Expr::vector(x, y)])
+                Expr::from_vector(vec![Int(0), Int(ship_id), Expr::vector(x, y)])
             }
             Command::Denotate { ship_id } => Expr::from_vector(vec![Int(1), Int(ship_id)]),
             Command::Shoot {
@@ -46,7 +46,7 @@ impl From<Command> for Expr {
                 x3,
             } => {
                 let (x, y) = target;
-                Expr::from_vector(vec![Int(1), Int(ship_id), Expr::vector(x, y), x3])
+                Expr::from_vector(vec![Int(2), Int(ship_id), Expr::vector(x, y), x3])
             }
         }
     }

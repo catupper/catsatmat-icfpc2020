@@ -80,14 +80,16 @@ async fn main() -> Result<()> {
     let (current_game_stage, list_a, _state) = response.as_game_response();
     let mut game_stage = current_game_stage;
     let is_defender = list_a.cdr().car() == Expr::Int(1);
-    let ship_id = player_key;
+    let ship_id;
     info!("IsDefneder: {}", is_defender);
     assert_eq!(game_stage, 0);
     if is_defender {
+        ship_id = 1;
         let response = sender.start(player_key, 1, 1, 2, 2).await?;
         let (current_game_stage, _list_a, _state) = response.as_game_response();
         game_stage = current_game_stage;
     } else {
+        ship_id = 0;
         let response = sender.start(player_key, 1, 1, 1, 1).await?;
         let (current_game_stage, _list_a, _state) = response.as_game_response();
         game_stage = current_game_stage;
