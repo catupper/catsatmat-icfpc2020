@@ -95,7 +95,7 @@ async fn main() -> Result<()> {
         .iter()
         .find(|&ship| ship.role == 1 - role)
         .unwrap();
-    let mut last_other_pos = other_ship.position;
+    //    let mut last_other_pos = other_ship.position;
     let mut turn = 0;
     while game_stage != 2 {
         let other_ship = state
@@ -103,26 +103,16 @@ async fn main() -> Result<()> {
             .iter()
             .find(|&ship| ship.role == 1 - role)
             .unwrap();
-        let now_other_pos = other_ship.position;
+        //        let now_other_pos = other_ship.position;
+        //      let mut base_acceleration = (-gv.0, -gv.1);
         let my_ship = state.ships.iter().find(|&ship| ship.role == role).unwrap();
-        let gv = gravity(&my_ship.position);
-        let mut base_acceleration = (-gv.0, -gv.1);
+        //let gv = gravity(&my_ship.position);
 
         let mut commands = vec![Command::shoot(other_ship.ship_id, other_ship.position).into()];
         if let Some(Command::Accelerate { ship_id: _, vector }) =
             other_ship.commands.iter().find(|x| x.is_accelerate())
         {
-            commands.push(Command::accelerate(my_ship.ship_id, (-vector.0, -vector.1)).into());
-        }
-        if turn > 0 {
-            let enemy_dx = now_other_pos.0 - last_other_pos.0;
-            let enemy_dy = now_other_pos.1 - last_other_pos.1;
-            let (my_dx, my_dy) = my_ship.velocity;
-            let next_my_ax = -enemy_dx - my_dx;
-            let next_my_ay = -enemy_dy - my_dy;
-            base_acceleration.0 += next_my_ax;
-            base_acceleration.0 += next_my_ay;
-            last_other_pos = now_other_pos;
+            commands.push(Command::accelerate(my_ship.ship_id, (vector.0, vector.1)).into());
         }
         let response = sender
             .command(player_key, Expr::from_vector(commands))
@@ -133,7 +123,7 @@ async fn main() -> Result<()> {
         info!("List A:{}", list_a);
         info!("State:{}", tmp_state);
         state = tmp_state.into();
-        info!("\n\n\n{}\n\n", "=".repeat(50));
+        info!("\n\n\n{}Turn:{}\n\n", turn, "=".repeat(50));
         turn += 1;
     }
     Ok(())
