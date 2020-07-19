@@ -79,7 +79,7 @@ async fn main() -> Result<()> {
     let response = sender.join(player_key).await?;
     let (current_game_stage, list_a, _state) = response.as_game_response();
     let mut game_stage = current_game_stage;
-    let is_defender = list_a.cdr().cdr().car();
+    let is_defender = list_a.cdr().car();
     info!("IsDefneder: {}", is_defender);
     assert_eq!(game_stage, 0);
     if is_defender == Expr::Int(1) {
