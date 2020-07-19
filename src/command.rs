@@ -27,7 +27,7 @@ impl Command {
         Command::Shoot {
             ship_id,
             target,
-            x3: 1,
+            x3: 10,
         }
     }
 }
