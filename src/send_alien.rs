@@ -77,7 +77,7 @@ impl Sender {
             .uri(server_url.clone())
             .body(Body::from(request_string.clone()))?;
 
-        info!(
+        debug!(
             "ServerUrl: {}; requestString: {}",
             server_url, request_string
         );
@@ -85,13 +85,13 @@ impl Sender {
         match client.request(req).await {
             Ok(mut res) => match res.status() {
                 StatusCode::OK => {
-                    info!("Server response: ");
+                    debug!("Server response: ");
                     let mut response = "".to_string();
                     while let Some(chunk) = res.body_mut().data().await {
                         match chunk {
                             Ok(content) => {
                                 response = response + &String::from_utf8(content.to_vec()).unwrap();
-                                info!("{:?}", content)
+                                debug!("{:?}", content)
                             }
                             Err(why) => error!("error reading body: {:?}", why),
                         }
@@ -112,7 +112,7 @@ impl Sender {
                 }
             },
             Err(err) => {
-                info!("Unexpected server response:\n{}", err);
+                error!("Unexpected server response:\n{}", err);
                 process::exit(1);
             }
         }
