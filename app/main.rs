@@ -73,23 +73,23 @@ async fn main() -> Result<()> {
     }
     let sender = Sender::new(server_url.to_string(), API_KEY.to_string());
     let player_key = player_key.parse()?;
-
     let response = sender.join(player_key).await?;
     println!("{}", response);
-    let (game_stage, _, _) = response.as_game_response();
+    let (current_game_stage, _list_a, _state) = response.as_game_response();
+    let mut game_stage = current_game_stage;
     if game_stage == 0{
-        let response = sender.start(player_key,0,0,0,0).await?;
+        let response = sender.start(player_key,510,0,0,1).await?;
         println!("{}", response);
+        let (current_game_stage, _list_a, _state) = response.as_game_response();
+        game_stage = current_game_stage;
     }
-    for _ in 0i32..10{
-        let (game_stage, list_a, state) = sender.command(player_key, Expr::Nil).await?.as_game_response();
+    while game_stage != 2{
+        let (current_game_stage, list_a, state) = sender.command(player_key, Expr::Nil).await?.as_game_response();
+        game_stage = current_game_stage;
         println!("Stage ID:{}", game_stage);
         println!("List A:{}", list_a);
         println!("State:{}", state);
         println!("\n{}\nx", "=".repeat(50));
-        if game_stage == 2{
-            break;
-        }
     }
     Ok(())
 }
