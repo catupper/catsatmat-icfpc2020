@@ -32,7 +32,7 @@ impl Sender {
     pub async fn start(
         &self,
         player_key: i64,
-        num1: i64,
+        fuel: i64,
         num2: i64,
         num3: i64,
         num4: i64,
@@ -42,7 +42,7 @@ impl Sender {
             Expr::Int(3),
             Expr::Int(player_key),
             Expr::from_vector(vec![
-                Expr::Int(num1),
+                Expr::Int(fuel),
                 Expr::Int(num2),
                 Expr::Int(num3),
                 Expr::Int(num4),
