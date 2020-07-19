@@ -92,18 +92,30 @@ async fn main() -> Result<()> {
     let mut state: State = state.into();
     let my_ship = state.ships.iter().find(|&ship| ship.role == role).unwrap();
     let ship_id = my_ship.ship_id;
+
+    let (px, py) = my_ship.position;
+    #[allow(clippy::collapsible_if)]
+    let base_velocity = if px.abs() >= py.abs() {
+        if px > 0 {
+            (-1, 0)
+        } else {
+            (1, 0)
+        }
+    } else {
+        if py > 0 {
+            (0, -1)
+        } else {
+            (0, 1)
+        }
+    };
     while game_stage != 2 {
-        let my_ship = state.ships.iter().find(|&ship| ship.role == role).unwrap();
         let other_ship = state
             .ships
             .iter()
             .find(|&ship| ship.role == 1 - role)
             .unwrap();
-        let (x, y) = my_ship.position;
-        //        let v = if state.turn <= 2 { 2 } else { 1 };
-        let v = 1;
         let commands = vec![
-            Command::accelerate(ship_id, (v * -x / x.abs(), v * -y / y.abs())).into(),
+            Command::accelerate(ship_id, base_velocity).into(),
             Command::shoot(other_ship.ship_id, other_ship.position).into(),
         ];
         //let commands = vec![Command::shoot(ship_id, (1, 2)).into()];
