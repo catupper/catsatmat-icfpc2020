@@ -75,12 +75,12 @@ async fn main() -> Result<()> {
     let (current_game_stage, _list_a, _state) = response.as_game_response();
     let mut game_stage = current_game_stage;
     println!("{}", game_stage);
-    if game_stage == 0 {
+    /*if game_stage == 0 {
         let response = sender.start(player_key, 1, 1, 1, 1).await?;
         println!("{}", response);
         let (current_game_stage, _list_a, _state) = response.as_game_response();
         game_stage = current_game_stage;
-    }
+    }*/
     while game_stage != 2 {
         let response = sender.command(player_key, Expr::Nil).await?;
         println!("{}", response);

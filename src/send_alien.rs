@@ -41,7 +41,7 @@ impl Sender {
         let expr = Expr::from_vector(vec![
             Expr::Int(3),
             Expr::Int(player_key),
-            Expr::from_vector_no_nil(vec![
+            Expr::from_vector(vec![
                 Expr::Int(num1),
                 Expr::Int(num2),
                 Expr::Int(num3),
