@@ -1,4 +1,7 @@
-use crate::Expr::{self, *};
+use crate::{
+    Command,
+    Expr::{self, *},
+};
 
 #[derive(Debug, Clone)]
 pub struct State {
@@ -35,11 +38,12 @@ pub struct Ship {
     pub ship_id: i64,
     pub position: (i64, i64),
     pub velocity: (i64, i64),
+    pub commands: Vec<Command>,
 }
 
 impl From<Expr> for Ship {
     fn from(expr: Expr) -> Ship {
-        let (expr, _commands) = expr.carcdr();
+        let (expr, commands) = expr.carcdr();
         if let (Int(role), expr) = expr.carcdr() {
             if let (Int(ship_id), expr) = expr.carcdr() {
                 let (position, expr) = expr.carcdr();
@@ -53,6 +57,7 @@ impl From<Expr> for Ship {
                             ship_id,
                             position: (px, py),
                             velocity: (vx, vy),
+                            commands: commands.iter().map(Into::into).collect(),
                         };
                     }
                 }

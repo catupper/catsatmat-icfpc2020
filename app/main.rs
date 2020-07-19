@@ -86,7 +86,7 @@ async fn main() -> Result<()> {
     };
     info!("IsDefneder: {}", role);
     assert_eq!(game_stage, 0);
-    let response = sender.start(player_key, 256, 1, 1, 1).await?;
+    let response = sender.start(player_key, 256, 0, 1, 1).await?;
     let (current_game_stage, _list_a, state) = response.as_game_response();
     game_stage = current_game_stage;
     let mut state: State = state.into();
@@ -107,6 +107,13 @@ async fn main() -> Result<()> {
         let my_ship = state.ships.iter().find(|&ship| ship.role == role).unwrap();
         let gv = gravity(&my_ship.position);
         let mut base_acceleration = (-gv.0, -gv.1);
+
+        let mut commands = vec![Command::shoot(other_ship.ship_id, other_ship.position).into()];
+        if let Some(Command::Accelerate { ship_id: _, vector }) =
+            other_ship.commands.iter().find(|x| x.is_accelerate())
+        {
+            commands.push(Command::accelerate(my_ship.ship_id, (-vector.0, -vector.1)).into());
+        }
         if turn > 0 {
             let enemy_dx = now_other_pos.0 - last_other_pos.0;
             let enemy_dy = now_other_pos.1 - last_other_pos.1;
@@ -117,10 +124,6 @@ async fn main() -> Result<()> {
             base_acceleration.0 += next_my_ay;
             last_other_pos = now_other_pos;
         }
-        let commands = vec![
-            Command::accelerate(my_ship.ship_id, base_acceleration).into(),
-            Command::shoot(other_ship.ship_id, other_ship.position).into(),
-        ];
         let response = sender
             .command(player_key, Expr::from_vector(commands))
             .await?;
