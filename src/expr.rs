@@ -97,6 +97,16 @@ impl fmt::Display for Expr {
 }
 
 impl Expr {
+    pub fn iter(&self) -> ExprIter {
+        ExprIter {
+            expr: Some(Box::new(self.clone())),
+        }
+    }
+    pub fn from_vector(vec: Vec<Expr>) -> Expr {
+        vec.into_iter()
+            .rev()
+            .fold(Expr::Nil, |xs, x| Expr::Cons2(Box::new(x), Box::new(xs)))
+    }
     pub fn travarse_defs(&self) -> HashSet<i32> {
         match self {
             Expr::Ap(expr1, expr2) => {
@@ -190,6 +200,37 @@ impl Expr {
             }
         }
         res
+    }
+}
+
+pub struct ExprIter {
+    expr: Option<Box<Expr>>,
+}
+
+//ConsをListのごとく舐める
+//Nilはガン無視
+impl Iterator for ExprIter {
+    type Item = Expr;
+    fn next(&mut self) -> Option<Self::Item> {
+        if let Some(expr) = self.expr.clone() {
+            let res = match *expr {
+                Expr::Cons2(x, y) => {
+                    self.expr = Some(y);
+                    *x
+                }
+                expr => {
+                    self.expr = None;
+                    expr
+                }
+            };
+            if let Expr::Nil = res {
+                None
+            } else {
+                Some(res)
+            }
+        } else {
+            None
+        }
     }
 }
 

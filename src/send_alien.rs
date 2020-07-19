@@ -4,55 +4,86 @@ use hyper::{Body, Client, Method, Request, StatusCode};
 use hyper_tls::HttpsConnector;
 use std::process;
 
+use crate::Expr;
 
-const DEFAULT_URL: &str = "https://icfpc2020-api.testkontur.ru";
-const API_KEY: &str = "41ff8e29e5fa4596928186fcfe5bfee2";
+
+pub struct Sender{
+    url: String,
+    api_key: String,
+}
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error + Send + Sync>>;
-pub async fn send(request_string: String) -> Result<String> {
-    let https = HttpsConnector::new();
-    let client = Client::builder().build::<_, hyper::Body>(https);
-    
-    let server_url = DEFAULT_URL.to_string() + "/aliens/send?apiKey=" + API_KEY;
-    let req = Request::builder()
-        .method(Method::POST)
-        .uri(server_url.clone())
-        .body(Body::from(request_string.clone()))?;
-    
-    println!("ServerUrl: {}; requestString: {}", server_url, request_string);
 
-    match client.request(req).await {
-        Ok(mut res) => match res.status() {
-            StatusCode::OK => {
-                print!("Server response: ");
-                let mut response = "".to_string();
-                while let Some(chunk) = res.body_mut().data().await {
-                    match chunk {
-                        Ok(content) => {
-                            response = response + &String::from_utf8(content.to_vec()).unwrap();
-                            println!("{:?}", content)
+impl Sender{
+    pub fn new(url:String, api_key:String)->Self{
+        Sender{url, api_key}
+    }
+
+    pub async fn join_with_list(&self, player_key: i64, list: Expr)->Result<Expr>{
+        let expr = Expr::from_vector(
+            vec![Expr::Int(2), Expr::Int(player_key), list]
+        );
+        self.send_expr(expr).await
+    }
+
+    pub async fn join(&self, player_key:i64)->Result<Expr>{
+        self.join_with_list(player_key, Expr::Nil).await
+    }
+
+    pub async fn send_expr(&self, expr: Expr)->Result<Expr>{
+        let src = expr.modulate();
+        let res = self.send(src).await;
+        res.map(|src| Expr::demodulate(&src).0)
+    }
+    
+    pub async fn send(&self, request_string: String) -> Result<String> {
+        let https = HttpsConnector::new();
+        let client = Client::builder().build::<_, hyper::Body>(https);
+        
+        let server_url = self.url.clone() + "/aliens/send?apiKey=" + &self.api_key;
+        let req = Request::builder()
+            .method(Method::POST)
+            .uri(server_url.clone())
+            .body(Body::from(request_string.clone()))?;
+
+        println!(
+            "ServerUrl: {}; requestString: {}",
+            server_url, request_string
+        );
+
+        match client.request(req).await {
+            Ok(mut res) => match res.status() {
+                StatusCode::OK => {
+                    print!("Server response: ");
+                    let mut response = "".to_string();
+                    while let Some(chunk) = res.body_mut().data().await {
+                        match chunk {
+                            Ok(content) => {
+                                response = response + &String::from_utf8(content.to_vec()).unwrap();
+                                println!("{:?}", content)
+                            }
+                            Err(why) => println!("error reading body: {:?}", why),
                         }
-                        Err(why) => println!("error reading body: {:?}", why),
                     }
+                    Ok(response)
                 }
-                Ok(response)
-            }
-            _ => {
-                println!("Unexpected server response:");
-                println!("HTTP code: {}", res.status());
-                print!("Response body: ");
-                while let Some(chunk) = res.body_mut().data().await {
-                    match chunk {
-                        Ok(content) => println!("{:?}", content),
-                        Err(why) => println!("error reading body: {:?}", why)
+                _ => {
+                    println!("Unexpected server response:");
+                    println!("HTTP code: {}", res.status());
+                    print!("Response body: ");
+                    while let Some(chunk) = res.body_mut().data().await {
+                        match chunk {
+                            Ok(content) => println!("{:?}", content),
+                            Err(why) => println!("error reading body: {:?}", why),
+                        }
                     }
-                }                
-                process::exit(2);
+                    process::exit(2);
+                }
+            },
+            Err(err) => {
+                println!("Unexpected server response:\n{}", err);
+                process::exit(1);
             }
-        },
-        Err(err) => {
-            println!("Unexpected server response:\n{}", err);
-            process::exit(1);
         }
     }
 }
