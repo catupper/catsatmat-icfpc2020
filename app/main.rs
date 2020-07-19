@@ -86,7 +86,7 @@ async fn main() -> Result<()> {
     };
     info!("IsDefneder: {}", role);
     assert_eq!(game_stage, 0);
-    let response = sender.start(player_key, 256, 0, 1, 1).await?;
+    let response = sender.start(player_key, 326, 0, 7, 1).await?;
     let (current_game_stage, _list_a, state) = response.as_game_response();
     game_stage = current_game_stage;
     let mut state: State = state.into();
