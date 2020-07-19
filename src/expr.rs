@@ -107,6 +107,12 @@ impl Expr {
             .rev()
             .fold(Expr::Nil, |xs, x| Expr::Cons2(Box::new(x), Box::new(xs)))
     }
+
+    pub fn from_vector_no_nil(vec: Vec<Expr>) -> Expr {
+        let mut it = vec.into_iter().rev();
+        let first = it.next().unwrap();
+        it.fold(first, |xs, x| Expr::Cons2(Box::new(x), Box::new(xs)))
+    }
     pub fn travarse_defs(&self) -> HashSet<i32> {
         match self {
             Expr::Ap(expr1, expr2) => {
