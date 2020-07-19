@@ -104,16 +104,18 @@ async fn main() -> Result<()> {
             .find(|&ship| ship.role == 1 - role)
             .unwrap();
         //        let now_other_pos = other_ship.position;
-        //      let mut base_acceleration = (-gv.0, -gv.1);
-        let my_ship = state.ships.iter().find(|&ship| ship.role == role).unwrap();
-        //let gv = gravity(&my_ship.position);
 
+        let my_ship = state.ships.iter().find(|&ship| ship.role == role).unwrap();
         let mut commands = vec![Command::shoot(other_ship.ship_id, other_ship.position).into()];
         if let Some(Command::Accelerate { ship_id: _, vector }) =
             other_ship.commands.iter().find(|x| x.is_accelerate())
         {
             commands.push(Command::accelerate(my_ship.ship_id, (vector.0, vector.1)).into());
+        } else if turn == 0 {
+            let gv = gravity(&my_ship.position);
+            commands.push(Command::accelerate(my_ship.ship_id, (-gv.0, -gv.1).into()).into());
         }
+
         let response = sender
             .command(player_key, Expr::from_vector(commands))
             .await?;
