@@ -39,6 +39,7 @@ pub struct Ship {
 
 impl From<Expr> for Ship {
     fn from(expr: Expr) -> Ship {
+        let (expr, _commands) = expr.carcdr();
         if let (Int(role), expr) = expr.carcdr() {
             if let (Int(ship_id), expr) = expr.carcdr() {
                 let (position, expr) = expr.carcdr();
