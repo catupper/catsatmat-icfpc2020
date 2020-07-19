@@ -56,9 +56,7 @@ impl From<Command> for Expr {
                     Int(2),
                     Int(ship_id),
                     Expr::vector(x, y),
-                    Int(x3),
-                    Int(x4),
-                    Int(x5),
+                    Expr::from_vector(vec![Int(x3), Int(x4), Int(x5)]),
                 ])
             }
         }
