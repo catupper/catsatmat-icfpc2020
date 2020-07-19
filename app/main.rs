@@ -77,14 +77,22 @@ async fn main() -> Result<()> {
     let sender = Sender::new(server_url.to_string(), API_KEY.to_string());
     let player_key = player_key.parse()?;
     let response = sender.join(player_key).await?;
-    let (current_game_stage, _list_a, _state) = response.as_game_response();
+    let (current_game_stage, list_a, _state) = response.as_game_response();
     let mut game_stage = current_game_stage;
-    if game_stage == 0 {
+    let is_defender = list_a.cdr().cdr().car() == Expr::Int(0);
+    assert_eq!(game_stage, 0);
+    if is_defender {
         let response = sender.start(player_key, 1, 1, 2, 2).await?;
         let (current_game_stage, _list_a, _state) = response.as_game_response();
         game_stage = current_game_stage;
+    } else {
+        let response = sender.start(player_key, 1, 1, 1, 1).await?;
+        let (current_game_stage, _list_a, _state) = response.as_game_response();
+        game_stage = current_game_stage;
     }
+
     while game_stage != 2 {
+        std::thread::sleep(std::time::Duration::from_millis(500));
         let response = sender.command(player_key, Expr::Nil).await?;
         let (current_game_stage, list_a, state) = response.as_game_response();
         game_stage = current_game_stage;
